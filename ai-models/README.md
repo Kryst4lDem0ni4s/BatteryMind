@@ -143,34 +143,94 @@ ai-models/
 │       ├── physics_simulator.py
 │       ├── noise_generator.py
 │       └── scenario_builder.py
-├── model-artifacts/
-│   ├── __init__.py
-│   ├── trained_models/
-│   │   ├── transformer_v1.0/
-│   │   ├── federated_v1.0/
-│   │   ├── rl_agent_v1.0/
-│   │   └── ensemble_v1.0/
-│   ├── checkpoints/
-│   │   ├── transformer_checkpoints/
-│   │   ├── federated_checkpoints/
-│   │   ├── rl_checkpoints/
-│   │   └── ensemble_checkpoints/
-│   ├── performance_metrics/
-│   │   ├── transformer_metrics.json
-│   │   ├── federated_metrics.json
-│   │   ├── rl_metrics.json
-│   │   ├── ensemble_metrics.json
-│   │   └── comparative_analysis.json
-│   ├── version_control/
-│   │   ├── model_registry.json
-│   │   ├── deployment_history.json
-│   │   ├── performance_tracking.json
-│   │   └── rollback_configs.json
-│   └── exports/
-│       ├── onnx_models/
-│       ├── tensorflow_lite/
-│       ├── tensorrt_optimized/
-│       └── edge_models/
+model-artifacts/
+├── __init__.py
+├── trained_models/
+│   ├── transformer_v1.0/
+│   │   ├── model.pkl
+│   │   ├── model_weights.h5
+│   │   ├── tokenizer.json
+│   │   ├── config.json
+│   │   ├── training_history.json
+│   │   └── model_metadata.yaml
+│   ├── federated_v1.0/
+│   │   ├── global_model.pkl
+│   │   ├── aggregation_weights.npy
+│   │   ├── client_configs.json
+│   │   ├── federation_history.json
+│   │   └── privacy_params.yaml
+│   ├── rl_agent_v1.0/
+│   │   ├── policy_network.pt
+│   │   ├── value_network.pt
+│   │   ├── replay_buffer.pkl
+│   │   ├── training_stats.json
+│   │   └── environment_config.yaml
+│   └── ensemble_v1.0/
+│       ├── ensemble_model.pkl
+│       ├── base_models.tar.gz
+│       ├── voting_weights.npy
+│       ├── stacking_meta_model.pkl
+│       └── ensemble_config.json
+├── checkpoints/
+│   ├── transformer_checkpoints/
+│   │   ├── epoch_001.ckpt
+│   │   ├── epoch_010.ckpt
+│   │   ├── epoch_025.ckpt
+│   │   ├── epoch_050.ckpt
+│   │   ├── best_model.ckpt
+│   │   └── latest_checkpoint.ckpt
+│   ├── federated_checkpoints/
+│   │   ├── round_001.ckpt
+│   │   ├── round_010.ckpt
+│   │   ├── round_025.ckpt
+│   │   ├── round_050.ckpt
+│   │   ├── best_global_model.ckpt
+│   │   └── latest_federation.ckpt
+│   ├── rl_checkpoints/
+│   │   ├── episode_1000.ckpt
+│   │   ├── episode_5000.ckpt
+│   │   ├── episode_10000.ckpt
+│   │   ├── episode_25000.ckpt
+│   │   ├── best_policy.ckpt
+│   │   └── latest_training.ckpt
+│   └── ensemble_checkpoints/
+│       ├── ensemble_v1.ckpt
+│       ├── ensemble_v2.ckpt
+│       ├── ensemble_v3.ckpt
+│       ├── best_ensemble.ckpt
+│       └── latest_ensemble.ckpt
+├── performance_metrics/
+│   ├── transformer_metrics.json
+│   ├── federated_metrics.json
+│   ├── rl_metrics.json
+│   ├── ensemble_metrics.json
+│   └── comparative_analysis.json
+├── version_control/
+│   ├── model_registry.json
+│   ├── deployment_history.json
+│   ├── performance_tracking.json
+│   └── rollback_configs.json
+└── exports/
+    ├── onnx_models/
+    │   ├── transformer_battery_health.onnx
+    │   ├── federated_global_model.onnx
+    │   ├── rl_policy_network.onnx
+    │   └── ensemble_predictor.onnx
+    ├── tensorflow_lite/
+    │   ├── transformer_mobile.tflite
+    │   ├── federated_edge.tflite
+    │   ├── rl_agent_mobile.tflite
+    │   └── ensemble_lite.tflite
+    ├── tensorrt_optimized/
+    │   ├── transformer_optimized.trt
+    │   ├── federated_optimized.trt
+    │   ├── rl_optimized.trt
+    │   └── ensemble_optimized.trt
+    └── edge_models/
+        ├── transformer_quantized.pkl
+        ├── federated_compressed.pkl
+        ├── rl_pruned.pkl
+        └── ensemble_optimized.pkl
 ├── notebooks/
 │   ├── exploratory_analysis/
 │   │   ├── battery_data_exploration.ipynb
