@@ -1,0 +1,417 @@
+# BatteryMind - Battery Health Predictor Configuration
+# Comprehensive configuration for battery health prediction transformer model
+# Version: 1.0.0
+# Author: BatteryMind Development Team
+
+# Model Architecture Configuration
+model:
+  # Core transformer parameters
+  d_model: 512                    # Model dimension (embedding size)
+  n_heads: 8                      # Number of attention heads
+  n_layers: 6                     # Number of transformer layers
+  d_ff: 2048                      # Feed-forward network dimension
+  dropout: 0.1                    # Dropout probability
+  max_sequence_length: 1024       # Maximum input sequence length
+  vocab_size: 10000               # Vocabulary size for tokenization
+  
+  # Input/Output dimensions
+  feature_dim: 16                 # Input feature dimension
+  target_dim: 4                   # Output target dimension (SoH + 3 degradation patterns)
+  
+  # Advanced model parameters
+  activation: "gelu"              # Activation function type
+  layer_norm_eps: 1e-6           # Layer normalization epsilon
+  use_physics_constraints: true   # Enable physics-informed constraints
+  
+  # Battery-specific constraints
+  temperature_range: [-20.0, 60.0]  # Valid temperature range (°C)
+  voltage_range: [2.5, 4.2]         # Valid voltage range (V)
+  current_range: [-100.0, 100.0]    # Valid current range (A)
+  soh_range: [0.0, 1.0]             # State of Health range
+  
+  # Attention mechanism parameters
+  attention_dropout: 0.1          # Attention dropout rate
+  use_relative_positions: true    # Use relative positional encoding
+  max_relative_position: 128      # Maximum relative position
+  
+  # Battery-specific encoding
+  use_battery_encoding: true      # Enable battery-specific positional encoding
+  cycle_encoding_dim: 128         # Dimension for cycle count encoding
+  age_encoding_dim: 128           # Dimension for battery age encoding
+  temperature_encoding_dim: 128   # Dimension for temperature encoding
+  usage_encoding_dim: 128         # Dimension for usage pattern encoding
+
+# Training Configuration
+training:
+  # Basic training parameters
+  batch_size: 32                  # Training batch size
+  learning_rate: 1e-4             # Initial learning rate
+  num_epochs: 100                 # Number of training epochs
+  warmup_steps: 4000              # Number of warmup steps for learning rate
+  weight_decay: 0.01              # Weight decay for regularization
+  gradient_clip_norm: 1.0         # Gradient clipping norm
+  
+  # Optimization parameters
+  optimizer_type: "adamw"         # Optimizer type ('adam', 'adamw', 'sgd')
+  scheduler_type: "cosine_with_warmup"  # Learning rate scheduler type
+  scheduler_params:
+    T_0: 4000                     # Initial restart period
+    T_mult: 2                     # Period multiplication factor
+    eta_min: 1e-7                 # Minimum learning rate
+  
+  # Advanced training techniques
+  mixed_precision: true           # Enable mixed precision training
+  gradient_accumulation_steps: 1  # Gradient accumulation steps
+  early_stopping_patience: 10     # Early stopping patience
+  
+  # Data parameters
+  train_split: 0.7                # Training data split ratio
+  val_split: 0.15                 # Validation data split ratio
+  test_split: 0.15                # Test data split ratio
+  
+  # Checkpointing and logging
+  checkpoint_dir: "./checkpoints"  # Directory for saving checkpoints
+  log_interval: 100               # Logging interval in steps
+  eval_interval: 1000             # Evaluation interval in steps
+  save_interval: 5000             # Model saving interval in steps
+  
+  # Distributed training
+  distributed: false              # Enable distributed training
+  world_size: 1                   # Number of processes for distributed training
+  
+  # Physics-informed training
+  physics_loss_weight: 0.1        # Weight for physics-informed loss
+  consistency_loss_weight: 0.05   # Weight for consistency loss
+  temporal_consistency_weight: 0.02  # Weight for temporal consistency
+  
+  # Regularization
+  dropout_rate: 0.1               # Dropout rate
+  label_smoothing: 0.0            # Label smoothing factor
+  data_augmentation: true         # Enable data augmentation
+  
+  # Loss function configuration
+  loss_function:
+    soh_loss_weight: 2.0          # Weight for State of Health loss
+    degradation_loss_weight: 1.0  # Weight for degradation pattern loss
+    physics_loss_weight: 0.1      # Weight for physics constraints
+    consistency_loss_weight: 0.05 # Weight for temporal consistency
+    huber_delta: 1.0              # Huber loss delta parameter
+  
+  # AWS SageMaker integration
+  use_sagemaker: false            # Use AWS SageMaker for training
+  instance_type: "ml.p3.2xlarge" # SageMaker instance type
+  instance_count: 1               # Number of SageMaker instances
+
+# Data Configuration
+data:
+  # Sequence parameters
+  sequence_length: 512            # Length of input sequences
+  prediction_horizon: 24          # Number of future steps to predict
+  overlap_ratio: 0.5              # Overlap ratio between sequences
+  
+  # Feature configuration
+  feature_columns:
+    - "voltage"                   # Battery voltage (V)
+    - "current"                   # Battery current (A)
+    - "temperature"               # Battery temperature (°C)
+    - "state_of_charge"           # State of Charge (%)
+    - "internal_resistance"       # Internal resistance (Ω)
+    - "capacity"                  # Battery capacity (Ah)
+    - "cycle_count"               # Number of charge cycles
+    - "age_days"                  # Battery age in days
+    - "power"                     # Power (W) - derived feature
+    - "energy_cumulative"         # Cumulative energy (Wh)
+    - "coulomb_count"             # Coulomb counting
+    - "voltage_derivative"        # Voltage rate of change
+    - "current_derivative"        # Current rate of change
+    - "temperature_derivative"    # Temperature rate of change
+    - "resistance_estimate"       # Estimated resistance
+    - "arrhenius_factor"          # Temperature-based degradation factor
+  
+  target_columns:
+    - "state_of_health"           # State of Health (0-1)
+    - "capacity_fade_rate"        # Capacity degradation rate
+    - "resistance_increase_rate"  # Resistance increase rate
+    - "thermal_degradation"       # Thermal stress indicator
+  
+  # Data identification columns
+  timestamp_column: "timestamp"   # Name of timestamp column
+  battery_id_column: "battery_id" # Name of battery ID column
+  
+  # Data validation
+  validate_data: true             # Enable data validation
+  remove_outliers: true           # Remove outliers from data
+  outlier_threshold: 3.0          # Z-score threshold for outlier detection
+  outlier_method: "zscore"        # Outlier detection method
+  
+  # Missing value handling
+  interpolation_method: "linear"  # Interpolation method for missing values
+  max_gap_size: 10                # Maximum gap size for interpolation
+  
+  # Performance configuration
+  batch_size: 32                  # Data loading batch size
+  num_workers: 4                  # Number of worker processes
+  prefetch_factor: 2              # Number of batches to prefetch
+  pin_memory: true                # Pin memory for faster GPU transfer
+  
+  # AWS configuration
+  aws_region: "us-east-1"         # AWS region for S3 and IoT
+  s3_bucket: "batterymind-data"   # S3 bucket for data storage
+  iot_topic: "battery/telemetry"  # IoT topic for real-time data
+  
+  # Caching configuration
+  enable_caching: true            # Enable data caching
+  cache_dir: "./data_cache"       # Directory for data cache
+  cache_size_limit: 1024          # Maximum cache size in MB
+
+# Preprocessing Configuration
+preprocessing:
+  # Normalization configuration
+  normalization_method: "standard"  # Normalization method
+  feature_scaling_range: [0.0, 1.0] # Range for MinMax scaling
+  
+  # Feature engineering configuration
+  enable_feature_engineering: true  # Enable advanced feature engineering
+  window_sizes: [5, 10, 20, 50]     # Window sizes for rolling statistics
+  lag_features: [1, 5, 10, 24]      # Lag values for lag features
+  
+  # Frequency domain features
+  enable_frequency_features: true   # Enable frequency domain analysis
+  fft_components: 10                # Number of FFT components to extract
+  wavelet_type: "db4"               # Wavelet type for wavelet transform
+  
+  # Physics-informed features
+  enable_physics_features: true     # Enable physics-based feature extraction
+  temperature_reference: 25.0       # Reference temperature for Arrhenius features (°C)
+  
+  # Data augmentation
+  enable_augmentation: false        # Enable data augmentation (disabled for training)
+  noise_level: 0.01                 # Gaussian noise level for augmentation
+  time_warping_sigma: 0.2           # Time warping parameter
+  
+  # Sequence processing
+  sequence_padding: "zero"          # Padding method ('zero', 'replicate', 'reflect')
+  sequence_truncation: "random"     # Truncation method ('random', 'beginning', 'end')
+
+# Inference Configuration
+inference:
+  # Model configuration
+  model_path: "./model_artifacts/best_model.ckpt"  # Path to trained model
+  device: "auto"                    # Inference device ('cpu', 'cuda', 'auto')
+  batch_size: 32                    # Batch size for inference
+  max_sequence_length: 512          # Maximum input sequence length
+  
+  # Performance optimization
+  enable_caching: true              # Enable result caching
+  cache_ttl: 3600                   # Cache time-to-live in seconds
+  enable_monitoring: true           # Enable performance monitoring
+  confidence_threshold: 0.7         # Minimum confidence for predictions
+  
+  # Advanced features
+  use_model_ensemble: false         # Use ensemble of models
+  enable_explanations: false        # Generate prediction explanations
+  
+  # AWS SageMaker endpoint
+  sagemaker_endpoint: null          # SageMaker endpoint name for inference
+
+# Evaluation Configuration
+evaluation:
+  # Metrics configuration
+  primary_metrics:
+    - "soh_mae"                     # State of Health Mean Absolute Error
+    - "soh_rmse"                    # State of Health Root Mean Square Error
+    - "soh_r2"                      # State of Health R-squared
+    - "degradation_mae"             # Degradation pattern MAE
+    - "physics_compliance"          # Physics constraint compliance
+  
+  secondary_metrics:
+    - "inference_time"              # Model inference time
+    - "memory_usage"                # Memory usage during inference
+    - "energy_efficiency"           # Energy efficiency of predictions
+    - "prediction_stability"        # Stability of predictions over time
+  
+  # Validation configuration
+  cross_validation_folds: 5         # Number of cross-validation folds
+  time_series_split: true           # Use time-series aware splitting
+  validation_window: 30             # Days for validation window
+  
+  # Benchmarking
+  benchmark_datasets:
+    - "nasa_battery_dataset"        # NASA battery aging dataset
+    - "calce_battery_data"          # CALCE battery data
+    - "oxford_battery_degradation"  # Oxford battery degradation data
+  
+  # Performance thresholds
+  performance_thresholds:
+    soh_mae_threshold: 0.05         # Maximum acceptable SoH MAE
+    soh_rmse_threshold: 0.08        # Maximum acceptable SoH RMSE
+    soh_r2_threshold: 0.90          # Minimum acceptable SoH R²
+    inference_time_threshold: 100   # Maximum inference time (ms)
+    memory_usage_threshold: 1024    # Maximum memory usage (MB)
+
+# Deployment Configuration
+deployment:
+  # Model versioning
+  model_version: "1.0.0"           # Current model version
+  model_name: "battery_health_predictor"  # Model name for deployment
+  
+  # AWS SageMaker deployment
+  sagemaker_config:
+    instance_type: "ml.m5.large"   # Instance type for deployment
+    instance_count: 1               # Number of instances
+    auto_scaling:
+      min_capacity: 1               # Minimum number of instances
+      max_capacity: 10              # Maximum number of instances
+      target_value: 70.0            # Target CPU utilization
+  
+  # Edge deployment
+  edge_config:
+    model_format: "onnx"            # Model format for edge deployment
+    quantization: true              # Enable model quantization
+    optimization_level: "O3"        # Optimization level
+    memory_limit: 100               # Memory limit in MB
+  
+  # Monitoring configuration
+  monitoring:
+    enable_model_monitoring: true   # Enable model performance monitoring
+    enable_data_monitoring: true    # Enable data drift monitoring
+    alert_thresholds:
+      accuracy_drop: 0.05           # Alert if accuracy drops by 5%
+      latency_increase: 50          # Alert if latency increases by 50ms
+      error_rate: 0.01              # Alert if error rate exceeds 1%
+
+# Logging Configuration
+logging:
+  level: "INFO"                     # Logging level
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  handlers:
+    - type: "console"               # Console logging
+      level: "INFO"
+    - type: "file"                  # File logging
+      level: "DEBUG"
+      filename: "battery_health_predictor.log"
+      max_bytes: 10485760           # 10MB max file size
+      backup_count: 5               # Keep 5 backup files
+  
+  # MLflow tracking
+  mlflow:
+    tracking_uri: "http://localhost:5000"  # MLflow tracking server URI
+    experiment_name: "battery_health_prediction"  # Experiment name
+    
+  # Weights & Biases
+  wandb:
+    project: "batterymind"          # W&B project name
+    entity: "tata-technologies"     # W&B entity name
+
+# Security Configuration
+security:
+  # Data encryption
+  encrypt_data_at_rest: true        # Encrypt stored data
+  encrypt_data_in_transit: true     # Encrypt data during transmission
+  
+  # Model security
+  model_encryption: true            # Encrypt model artifacts
+  secure_inference: true            # Enable secure inference protocols
+  
+  # Access control
+  authentication_required: true     # Require authentication for API access
+  authorization_levels:
+    - "read"                        # Read-only access
+    - "write"                       # Read-write access
+    - "admin"                       # Administrative access
+  
+  # Privacy
+  differential_privacy: false       # Enable differential privacy (for federated learning)
+  privacy_budget: 1.0               # Privacy budget for differential privacy
+
+# Integration Configuration
+integration:
+  # Backend API integration
+  api_endpoints:
+    health_prediction: "/api/v1/battery/health/predict"
+    batch_prediction: "/api/v1/battery/health/batch"
+    model_info: "/api/v1/battery/health/info"
+    health_check: "/api/v1/battery/health/status"
+  
+  # Real-time streaming
+  streaming:
+    enable_real_time: true          # Enable real-time prediction
+    kafka_config:
+      bootstrap_servers: "localhost:9092"
+      topic: "battery_telemetry"
+      consumer_group: "battery_health_predictor"
+  
+  # Database integration
+  database:
+    connection_string: "postgresql://user:pass@localhost:5432/batterymind"
+    table_name: "battery_predictions"
+    batch_size: 1000                # Batch size for database operations
+  
+  # Blockchain integration
+  blockchain:
+    enable_blockchain: true         # Enable blockchain logging
+    network: "ethereum_testnet"     # Blockchain network
+    contract_address: "0x..."       # Smart contract address
+
+# Environment-specific overrides
+environments:
+  development:
+    training:
+      num_epochs: 10                # Reduced epochs for development
+      batch_size: 16                # Smaller batch size
+    data:
+      cache_size_limit: 256         # Smaller cache for development
+    logging:
+      level: "DEBUG"                # More verbose logging
+  
+  staging:
+    training:
+      num_epochs: 50                # Moderate epochs for staging
+    deployment:
+      sagemaker_config:
+        instance_type: "ml.m5.large"
+    monitoring:
+      alert_thresholds:
+        accuracy_drop: 0.10         # More lenient thresholds
+  
+  production:
+    training:
+      distributed: true             # Enable distributed training
+      use_sagemaker: true           # Use SageMaker for training
+    deployment:
+      sagemaker_config:
+        instance_type: "ml.m5.xlarge"
+        auto_scaling:
+          min_capacity: 2
+          max_capacity: 20
+    security:
+      authentication_required: true
+      model_encryption: true
+    monitoring:
+      enable_model_monitoring: true
+      enable_data_monitoring: true
+
+# Experimental Features (Future Development)
+experimental:
+  # Quantum-inspired optimization
+  quantum_optimization: false      # Enable quantum-inspired algorithms
+  
+  # Federated learning integration
+  federated_learning: false        # Enable federated learning capabilities
+  
+  # Advanced interpretability
+  attention_visualization: false   # Enable attention weight visualization
+  shap_explanations: false         # Enable SHAP-based explanations
+  
+  # Multi-modal integration
+  acoustic_features: false         # Include acoustic sensor data
+  vibration_features: false        # Include vibration sensor data
+  chemical_features: false         # Include chemical sensor data
+  
+  # Advanced physics modeling
+  molecular_simulation: false      # Enable molecular-level simulation
+  quantum_effects: false           # Model quantum effects in batteries
+  
+  # Continuous learning
+  online_learning: false           # Enable online learning capabilities
+  adaptive_architecture: false     # Enable adaptive model architecture
