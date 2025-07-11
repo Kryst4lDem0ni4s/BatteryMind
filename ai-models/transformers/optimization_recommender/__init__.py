@@ -27,6 +27,7 @@ Version: 1.0.0
 License: Proprietary - Tata Technologies InnoVent 2025
 """
 
+import numpy as np
 from .model import (
     OptimizationRecommender,
     OptimizationConfig,

@@ -17,6 +17,7 @@ Author: BatteryMind Development Team
 Version: 1.0.0
 """
 
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

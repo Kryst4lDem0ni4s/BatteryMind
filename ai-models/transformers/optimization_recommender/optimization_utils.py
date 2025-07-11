@@ -37,7 +37,15 @@ from sklearn.metrics import silhouette_score
 # Optimization libraries
 import optuna
 from deap import base, creator, tools, algorithms
-import pygmo as pg
+try:
+    import pygmo as pg # type: ignore
+except ImportError:
+    import subprocess
+    import sys
+    # Ensure installation is in the current venv only
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "--force-reinstall", "pygmo"])
+    import pygmo as pg # type: ignore
+from deap import base, creator, tools, algorithms
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -521,18 +529,95 @@ class MultiObjectiveOptimizer:
                 return (np.array([b[0] for b in bounds]), 
                        np.array([b[1] for b in bounds]))
         
-        # Setup PyGMO
-        problem = BatteryProblem()
-        udp = pg.problem(problem)
-        
-        # Algorithm
-        algo = pg.algorithm(pg.nsga2(gen=50))
-        
-        # Population
-        pop = pg.population(udp, 100)
-        
-        # Evolve
-        pop = algo.evolve(pop)
+        try:
+            # Setup PyGMO
+            problem = BatteryProblem()
+            udp = pg.problem(problem)
+            
+            # Algorithm
+            algo = pg.algorithm(pg.nsga2(gen=50))
+            
+            # Population
+            pop = pg.population(udp, 100)
+            
+            # Evolve
+            pop = algo.evolve(pop)
+        except Exception as e:
+            logger.warning(f"PyGMO NSGA-II failed: {e}. Trying DEAP NSGA-II implementation.")
+            # DEAP NSGA-II implementation
+
+            # Create DEAP fitness and individual classes for multi-objective
+            if not hasattr(creator, "FitnessMulti"):
+                creator.create("FitnessMulti", base.Fitness, weights=tuple([-1.0] * n_objectives))
+            if not hasattr(creator, "IndividualMulti"):
+                creator.create("IndividualMulti", list, fitness=creator.FitnessMulti)
+
+            # Toolbox setup
+            toolbox = base.Toolbox()
+            for i, (low, high) in enumerate(bounds):
+                toolbox.register(f"attr_{i}", np.random.uniform, low, high)
+                toolbox.register("individual", tools.initCycle, creator.IndividualMulti,
+                        [getattr(toolbox, f"attr_{i}") for i in range(len(bounds))], n=1)
+                toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+            # Evaluation function for multi-objective
+            def evaluate(individual):
+                params = {name: val for name, val in zip(param_names, individual)}
+                try:
+                    objectives = [func(params) for func in objective_functions]
+                    # Penalty for constraint violations
+                    violations = 0
+                    for constraint in self.constraints:
+                        if constraint.parameter in params:
+                            param_val = params[constraint.parameter]
+                            if constraint.constraint_type == "range":
+                                low, high = constraint.bounds
+                            if param_val < low or param_val > high:
+                                violations += min(abs(param_val - low), abs(param_val - high))
+                        penalty = violations * 1000
+                    return tuple(obj + penalty for obj in objectives)
+                except Exception:
+                    return tuple([float('inf')] * n_objectives)
+
+            toolbox.register("evaluate", evaluate)
+            toolbox.register("mate", tools.cxTwoPoint)
+            toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=0.1)
+            toolbox.register("select", tools.selNSGA2)
+
+            # Population initialization
+            population = toolbox.population(n=100)
+            ngen = 50
+            history = []
+
+            # Evaluate initial population
+            fitnesses = list(map(toolbox.evaluate, population))
+            for ind, fit in zip(population, fitnesses):
+                ind.fitness.values = fit
+
+            # Main NSGA-II loop
+            for gen in range(ngen):
+                offspring = algorithms.varAnd(population, toolbox, cxpb=0.5, mutpb=0.2)
+                # Ensure bounds
+                for ind in offspring:
+                    for i, (low, high) in enumerate(bounds):
+                        ind[i] = np.clip(ind[i], low, high)
+                fitnesses = list(map(toolbox.evaluate, offspring))
+                for ind, fit in zip(offspring, fitnesses):
+                    ind.fitness.values = fit
+                population = toolbox.select(population + offspring, k=100)
+            # Record best individuals for history
+            best_inds = tools.selBest(population, 5)
+            for ind in best_inds:
+                params = {name: val for name, val in zip(param_names, ind)}
+                history.append({
+                'generation': gen,
+                'parameters': params.copy(),
+                'objectives': ind.fitness.values
+                })
+
+            # Extract Pareto front from DEAP
+            pareto_front = [ind.fitness.values for ind in population]
+            pareto_x = [ind for ind in population]
         
         # Extract Pareto front
         pareto_front = pop.get_f()[pop.get_f()[:, 0].argsort()]

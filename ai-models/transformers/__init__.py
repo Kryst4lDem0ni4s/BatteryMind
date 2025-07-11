@@ -26,7 +26,10 @@ License: Proprietary - Tata Technologies InnoVent 2025
 """
 
 # Core transformer models
+import time
 import numpy as np
+import torch
+
 from .battery_health_predictor import (
     BatteryHealthTransformer,
     BatteryHealthConfig,

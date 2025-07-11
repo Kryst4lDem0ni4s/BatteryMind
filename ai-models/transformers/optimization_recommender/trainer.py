@@ -19,6 +19,7 @@ Version: 1.0.0
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler, autocast
 import torch.distributed as dist
