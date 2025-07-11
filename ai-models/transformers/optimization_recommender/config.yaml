@@ -1,0 +1,413 @@
+# BatteryMind - Optimization Recommender Configuration
+# Comprehensive configuration for battery optimization recommendation system
+# Version: 1.0.0
+# Author: BatteryMind Development Team
+
+# Model Architecture Configuration
+model:
+  # Core transformer parameters
+  d_model: 512                    # Model dimension (embedding size)
+  n_heads: 8                      # Number of attention heads
+  n_layers: 6                     # Number of transformer layers
+  d_ff: 2048                      # Feed-forward network dimension
+  dropout: 0.1                    # Dropout probability
+  max_sequence_length: 1024       # Maximum input sequence length
+  
+  # Optimization-specific parameters
+  optimization_horizon: 72        # Optimization horizon in hours (3 days)
+  recommendation_types: 8         # Number of different recommendation types
+  confidence_threshold: 0.8       # Minimum confidence for recommendations
+  
+  # Input/Output dimensions
+  feature_dim: 18                 # Input feature dimension
+  recommendation_dim: 12          # Output recommendation dimension
+  action_space_size: 64           # Number of possible optimization actions
+  
+  # Advanced model parameters
+  activation: "gelu"              # Activation function type
+  layer_norm_eps: 1e-6           # Layer normalization epsilon
+  use_optimization_constraints: true  # Enable optimization constraints
+  
+  # Multi-objective optimization
+  objective_weights:
+    battery_health: 0.4           # Weight for battery health optimization
+    energy_efficiency: 0.3        # Weight for energy efficiency
+    cost_optimization: 0.2        # Weight for cost reduction
+    safety_compliance: 0.1        # Weight for safety requirements
+  
+  # Recommendation categories
+  recommendation_categories:
+    - "charging_optimization"     # Charging protocol recommendations
+    - "thermal_management"        # Temperature control suggestions
+    - "load_balancing"           # Load distribution optimization
+    - "maintenance_scheduling"    # Predictive maintenance timing
+    - "usage_pattern_optimization" # Usage behavior recommendations
+    - "capacity_management"       # Capacity utilization optimization
+    - "lifecycle_extension"       # Battery life extension strategies
+    - "safety_protocols"          # Safety-related recommendations
+  
+  # Constraint parameters
+  optimization_constraints:
+    max_charging_rate: 2.0        # Maximum charging rate (C-rate)
+    min_soc_threshold: 0.2        # Minimum State of Charge threshold
+    max_temperature: 45.0         # Maximum operating temperature (°C)
+    min_temperature: 5.0          # Minimum operating temperature (°C)
+    max_discharge_rate: 3.0       # Maximum discharge rate (C-rate)
+    safety_margin: 0.1            # Safety margin for all constraints
+
+# Training Configuration
+training:
+  # Basic training parameters
+  batch_size: 32                  # Training batch size
+  learning_rate: 1e-4             # Initial learning rate
+  num_epochs: 150                 # Number of training epochs
+  warmup_steps: 6000              # Number of warmup steps
+  weight_decay: 0.01              # Weight decay for regularization
+  gradient_clip_norm: 1.0         # Gradient clipping norm
+  
+  # Optimization-specific training
+  multi_objective_loss: true      # Enable multi-objective loss function
+  constraint_penalty_weight: 0.2  # Weight for constraint violation penalty
+  recommendation_diversity_weight: 0.1  # Weight for recommendation diversity
+  
+  # Advanced training techniques
+  mixed_precision: true           # Enable mixed precision training
+  gradient_accumulation_steps: 1  # Gradient accumulation steps
+  early_stopping_patience: 15     # Early stopping patience
+  
+  # Optimization training parameters
+  optimizer_type: "adamw"         # Optimizer type
+  scheduler_type: "cosine_with_warmup"  # Learning rate scheduler
+  scheduler_params:
+    T_0: 6000                     # Initial restart period
+    T_mult: 2                     # Period multiplication factor
+    eta_min: 1e-7                 # Minimum learning rate
+  
+  # Data parameters
+  train_split: 0.7                # Training data split ratio
+  val_split: 0.15                 # Validation data split ratio
+  test_split: 0.15                # Test data split ratio
+  
+  # Checkpointing and logging
+  checkpoint_dir: "./checkpoints"  # Directory for saving checkpoints
+  log_interval: 100               # Logging interval in steps
+  eval_interval: 1000             # Evaluation interval in steps
+  save_interval: 5000             # Model saving interval in steps
+  
+  # Loss function configuration
+  loss_function:
+    primary_loss_weight: 1.0      # Weight for primary recommendation loss
+    constraint_loss_weight: 0.2   # Weight for constraint violation loss
+    diversity_loss_weight: 0.1    # Weight for recommendation diversity
+    confidence_loss_weight: 0.05  # Weight for confidence calibration
+    temporal_consistency_weight: 0.02  # Weight for temporal consistency
+
+# Data Configuration
+data:
+  # Sequence parameters
+  sequence_length: 512            # Length of input sequences
+  optimization_horizon: 72        # Optimization horizon in time steps
+  overlap_ratio: 0.3              # Overlap ratio between sequences
+  
+  # Feature configuration
+  feature_columns:
+    - "voltage"                   # Battery voltage (V)
+    - "current"                   # Battery current (A)
+    - "temperature"               # Battery temperature (°C)
+    - "state_of_charge"           # State of Charge (%)
+    - "state_of_health"           # State of Health (%)
+    - "internal_resistance"       # Internal resistance (Ω)
+    - "capacity"                  # Battery capacity (Ah)
+    - "cycle_count"               # Number of charge cycles
+    - "age_days"                  # Battery age in days
+    - "power_demand"              # Power demand (W)
+    - "ambient_temperature"       # Ambient temperature (°C)
+    - "humidity"                  # Humidity level (%)
+    - "usage_intensity"           # Usage intensity factor
+    - "charging_efficiency"       # Charging efficiency (%)
+    - "thermal_stress"            # Thermal stress indicator
+    - "load_profile"              # Load profile classification
+    - "energy_price"              # Energy cost ($/kWh)
+    - "grid_availability"         # Grid availability status
+  
+  target_columns:
+    - "optimal_charging_rate"     # Recommended charging rate
+    - "optimal_temperature"       # Target temperature
+    - "load_distribution"         # Optimal load distribution
+    - "maintenance_urgency"       # Maintenance priority score
+    - "usage_modification"        # Usage pattern adjustment
+    - "capacity_allocation"       # Capacity allocation strategy
+    - "safety_action"             # Safety-related actions
+    - "cost_optimization"         # Cost optimization actions
+    - "efficiency_improvement"    # Efficiency enhancement actions
+    - "lifecycle_action"          # Lifecycle extension actions
+    - "thermal_action"            # Thermal management actions
+    - "emergency_protocol"        # Emergency response actions
+  
+  # Data identification columns
+  timestamp_column: "timestamp"   # Name of timestamp column
+  battery_id_column: "battery_id" # Name of battery ID column
+  
+  # Data validation
+  validate_data: true             # Enable data validation
+  remove_outliers: true           # Remove outliers from data
+  outlier_threshold: 3.0          # Z-score threshold for outlier detection
+  
+  # Performance configuration
+  batch_size: 32                  # Data loading batch size
+  num_workers: 4                  # Number of worker processes
+  prefetch_factor: 2              # Number of batches to prefetch
+  pin_memory: true                # Pin memory for faster GPU transfer
+
+# Optimization Engine Configuration
+optimization:
+  # Optimization algorithms
+  primary_algorithm: "multi_objective_genetic"  # Primary optimization algorithm
+  fallback_algorithm: "gradient_based"          # Fallback optimization method
+  
+  # Multi-objective optimization
+  pareto_optimization: true       # Enable Pareto-optimal solutions
+  max_pareto_solutions: 10        # Maximum number of Pareto solutions
+  
+  # Genetic algorithm parameters
+  genetic_algorithm:
+    population_size: 100          # Population size for genetic algorithm
+    generations: 50               # Number of generations
+    mutation_rate: 0.1            # Mutation rate
+    crossover_rate: 0.8           # Crossover rate
+    selection_method: "tournament" # Selection method
+    tournament_size: 5            # Tournament size for selection
+  
+  # Gradient-based optimization
+  gradient_optimization:
+    learning_rate: 0.01           # Learning rate for gradient descent
+    max_iterations: 1000          # Maximum iterations
+    tolerance: 1e-6               # Convergence tolerance
+    momentum: 0.9                 # Momentum factor
+  
+  # Constraint handling
+  constraint_handling:
+    method: "penalty_function"    # Constraint handling method
+    penalty_factor: 1000.0        # Penalty factor for violations
+    adaptive_penalty: true        # Use adaptive penalty factors
+  
+  # Optimization objectives
+  objectives:
+    battery_health:
+      weight: 0.4                 # Objective weight
+      target: "maximize"          # Optimization direction
+      metric: "soh_improvement"   # Metric to optimize
+    
+    energy_efficiency:
+      weight: 0.3
+      target: "maximize"
+      metric: "energy_efficiency_ratio"
+    
+    cost_reduction:
+      weight: 0.2
+      target: "minimize"
+      metric: "operational_cost"
+    
+    safety_compliance:
+      weight: 0.1
+      target: "maximize"
+      metric: "safety_score"
+
+# Recommendation Engine Configuration
+recommendations:
+  # Recommendation generation
+  max_recommendations: 5         # Maximum recommendations per request
+  min_confidence: 0.7            # Minimum confidence for recommendations
+  diversity_threshold: 0.3       # Minimum diversity between recommendations
+  
+  # Recommendation types and priorities
+  recommendation_priorities:
+    critical_safety: 1.0          # Critical safety recommendations
+    battery_health: 0.9           # Battery health recommendations
+    efficiency: 0.8               # Efficiency improvements
+    cost_savings: 0.7             # Cost reduction recommendations
+    maintenance: 0.6              # Maintenance scheduling
+    usage_optimization: 0.5       # Usage pattern optimization
+    comfort: 0.4                  # User comfort recommendations
+    convenience: 0.3              # Convenience improvements
+  
+  # Recommendation formatting
+  output_format:
+    include_confidence: true      # Include confidence scores
+    include_impact_estimate: true # Include estimated impact
+    include_implementation_steps: true  # Include implementation guidance
+    include_timeline: true        # Include recommended timeline
+    include_cost_estimate: true   # Include cost estimates
+  
+  # Recommendation validation
+  validation:
+    physics_check: true           # Validate against physics constraints
+    safety_check: true            # Validate safety compliance
+    feasibility_check: true       # Check implementation feasibility
+    cost_benefit_analysis: true   # Perform cost-benefit analysis
+
+# Inference Configuration
+inference:
+  # Model configuration
+  model_path: "./model_artifacts/best_optimization_model.ckpt"
+  device: "auto"                  # Inference device
+  batch_size: 16                  # Inference batch size
+  
+  # Performance optimization
+  enable_caching: true            # Enable result caching
+  cache_ttl: 1800                 # Cache time-to-live (30 minutes)
+  enable_monitoring: true         # Enable performance monitoring
+  
+  # Real-time optimization
+  real_time_threshold: 100        # Real-time response threshold (ms)
+  optimization_timeout: 30        # Optimization timeout (seconds)
+  
+  # Recommendation filtering
+  filter_infeasible: true         # Filter infeasible recommendations
+  rank_by_impact: true            # Rank by estimated impact
+  personalization: true           # Enable personalized recommendations
+
+# Integration Configuration
+integration:
+  # Backend API integration
+  api_endpoints:
+    optimization_request: "/api/v1/battery/optimize"
+    recommendation_batch: "/api/v1/battery/recommend/batch"
+    optimization_status: "/api/v1/battery/optimize/status"
+    recommendation_feedback: "/api/v1/battery/recommend/feedback"
+  
+  # Real-time integration
+  streaming:
+    enable_real_time: true        # Enable real-time optimization
+    kafka_config:
+      bootstrap_servers: "localhost:9092"
+      topic: "battery_optimization_requests"
+      consumer_group: "optimization_recommender"
+  
+  # Database integration
+  database:
+    connection_string: "postgresql://user:pass@localhost:5432/batterymind"
+    recommendations_table: "optimization_recommendations"
+    feedback_table: "recommendation_feedback"
+    batch_size: 500               # Database batch size
+
+# Evaluation Configuration
+evaluation:
+  # Metrics configuration
+  primary_metrics:
+    - "recommendation_accuracy"   # Accuracy of recommendations
+    - "optimization_effectiveness" # Effectiveness of optimizations
+    - "constraint_compliance"     # Compliance with constraints
+    - "user_satisfaction"         # User satisfaction scores
+    - "implementation_success"    # Implementation success rate
+  
+  secondary_metrics:
+    - "response_time"             # Response time for recommendations
+    - "recommendation_diversity"  # Diversity of recommendations
+    - "cost_benefit_ratio"        # Cost-benefit ratio
+    - "safety_improvement"        # Safety score improvements
+  
+  # Validation configuration
+  validation_methods:
+    - "cross_validation"          # Cross-validation testing
+    - "temporal_validation"       # Time-based validation
+    - "a_b_testing"              # A/B testing framework
+    - "expert_evaluation"         # Expert review process
+  
+  # Performance thresholds
+  performance_thresholds:
+    recommendation_accuracy: 0.85 # Minimum recommendation accuracy
+    optimization_effectiveness: 0.80  # Minimum optimization effectiveness
+    constraint_compliance: 0.95   # Minimum constraint compliance
+    response_time: 200            # Maximum response time (ms)
+
+# Monitoring Configuration
+monitoring:
+  # Performance monitoring
+  enable_monitoring: true         # Enable comprehensive monitoring
+  metrics_collection_interval: 60 # Metrics collection interval (seconds)
+  
+  # Alert thresholds
+  alert_thresholds:
+    recommendation_accuracy_drop: 0.05  # Alert if accuracy drops by 5%
+    response_time_increase: 100    # Alert if response time increases by 100ms
+    constraint_violation_rate: 0.02 # Alert if violation rate exceeds 2%
+    optimization_failure_rate: 0.05 # Alert if failure rate exceeds 5%
+  
+  # Logging configuration
+  logging:
+    level: "INFO"
+    log_recommendations: true     # Log all recommendations
+    log_optimizations: true       # Log optimization results
+    log_feedback: true            # Log user feedback
+    retention_days: 90            # Log retention period
+
+# Security Configuration
+security:
+  # Data protection
+  encrypt_recommendations: true   # Encrypt recommendation data
+  secure_optimization: true       # Use secure optimization protocols
+  
+  # Access control
+  authentication_required: true   # Require authentication
+  authorization_levels:
+    - "read_only"                 # Read-only access
+    - "recommend"                 # Recommendation access
+    - "optimize"                  # Optimization access
+    - "admin"                     # Administrative access
+  
+  # Privacy protection
+  anonymize_data: true            # Anonymize sensitive data
+  privacy_preserving_optimization: true  # Use privacy-preserving methods
+
+# Environment-specific Configurations
+environments:
+  development:
+    training:
+      num_epochs: 20              # Reduced epochs for development
+      batch_size: 16              # Smaller batch size
+    optimization:
+      max_pareto_solutions: 3     # Fewer solutions for faster testing
+    monitoring:
+      metrics_collection_interval: 300  # Less frequent collection
+  
+  staging:
+    training:
+      num_epochs: 75              # Moderate epochs for staging
+    optimization:
+      max_pareto_solutions: 7     # Moderate number of solutions
+    security:
+      authentication_required: false  # Relaxed security for testing
+  
+  production:
+    training:
+      distributed: true           # Enable distributed training
+      use_aws_sagemaker: true     # Use SageMaker for training
+    optimization:
+      enable_caching: true        # Enable aggressive caching
+      real_time_threshold: 50     # Stricter real-time requirements
+    security:
+      encrypt_recommendations: true
+      authentication_required: true
+      audit_logging: true         # Enable audit logging
+    monitoring:
+      enable_alerting: true       # Enable production alerting
+      metrics_collection_interval: 30  # Frequent metrics collection
+
+# Experimental Features
+experimental:
+  # Advanced optimization techniques
+  quantum_optimization: false    # Quantum-inspired optimization algorithms
+  neural_architecture_search: false  # Automated architecture optimization
+  
+  # Advanced AI features
+  meta_learning: false            # Meta-learning for rapid adaptation
+  few_shot_optimization: false    # Few-shot learning for new scenarios
+  
+  # Integration experiments
+  blockchain_recommendations: false  # Blockchain-based recommendation tracking
+  federated_optimization: false   # Federated optimization across fleets
+  
+  # Performance experiments
+  edge_optimization: false        # Edge-based optimization
+  real_time_learning: false       # Real-time model updates

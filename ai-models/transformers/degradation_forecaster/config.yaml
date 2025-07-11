@@ -1,1 +1,375 @@
- 
+ # BatteryMind - Degradation Forecaster Configuration
+# Comprehensive configuration for battery degradation forecasting transformer model
+# Version: 1.0.0
+# Author: BatteryMind Development Team
+
+# Model Architecture Configuration
+model:
+  # Core transformer parameters (optimized for forecasting)
+  d_model: 512                    # Model dimension (embedding size)
+  n_heads: 8                      # Number of attention heads
+  n_layers: 8                     # Number of transformer layers (deeper for long-term dependencies)
+  d_ff: 2048                      # Feed-forward network dimension
+  dropout: 0.1                    # Dropout probability
+  max_sequence_length: 2048       # Maximum input sequence length (longer for forecasting)
+  vocab_size: 10000               # Vocabulary size for tokenization
+  
+  # Forecasting-specific dimensions
+  feature_dim: 20                 # Input feature dimension (more features for forecasting)
+  target_dim: 6                   # Output target dimension (multiple degradation metrics)
+  forecast_horizon: 168           # Forecast horizon in time steps (1 week in hours)
+  
+  # Advanced model parameters
+  activation: "gelu"              # Activation function type
+  layer_norm_eps: 1e-6           # Layer normalization epsilon
+  use_physics_constraints: true   # Enable physics-informed constraints
+  
+  # Forecasting-specific constraints
+  temperature_range: [-20.0, 60.0]  # Valid temperature range (°C)
+  voltage_range: [2.5, 4.2]         # Valid voltage range (V)
+  current_range: [-100.0, 100.0]    # Valid current range (A)
+  degradation_rate_limits:
+    capacity_fade: [0.0, 0.01]      # Daily capacity fade rate limits
+    resistance_increase: [0.0, 0.005] # Daily resistance increase limits
+    thermal_degradation: [0.0, 0.002] # Daily thermal degradation limits
+  
+  # Temporal attention parameters
+  temporal_attention_type: "relative"  # Type of temporal attention
+  max_relative_position: 256          # Maximum relative position for attention
+  temporal_dropout: 0.1               # Temporal attention dropout
+  
+  # Uncertainty quantification
+  enable_uncertainty: true            # Enable uncertainty quantification
+  uncertainty_method: "quantile"      # Uncertainty estimation method
+  uncertainty_quantiles: [0.1, 0.25, 0.75, 0.9]  # Prediction quantiles
+  monte_carlo_samples: 100            # Number of MC samples for uncertainty
+  
+  # Seasonal and trend components
+  enable_seasonal_decomposition: true  # Enable seasonal decomposition
+  seasonal_periods: [24, 168, 720]    # Seasonal periods (hourly, daily, weekly, monthly)
+  trend_analysis: true                 # Enable trend analysis
+  detrending_method: "linear"          # Detrending method
+  seasonality_method: "additive"       # Seasonality decomposition method
+  
+  # Multi-horizon forecasting
+  multi_horizon_forecasting: true     # Enable multi-horizon forecasting
+  horizon_weights: [1.0, 0.8, 0.6, 0.4, 0.2]  # Weights for different horizons
+  adaptive_horizon: true              # Adaptive horizon based on data patterns
+
+# Training Configuration
+training:
+  # Basic training parameters (adjusted for forecasting)
+  batch_size: 16                  # Training batch size (smaller for longer sequences)
+  learning_rate: 5e-5             # Initial learning rate (lower for stability)
+  num_epochs: 200                 # Number of training epochs (more for convergence)
+  warmup_steps: 8000              # Number of warmup steps for learning rate
+  weight_decay: 0.01              # Weight decay for regularization
+  gradient_clip_norm: 1.0         # Gradient clipping norm
+  
+  # Optimization parameters
+  optimizer_type: "adamw"         # Optimizer type
+  scheduler_type: "cosine_with_warmup"  # Learning rate scheduler type
+  scheduler_params:
+    T_0: 8000                     # Initial restart period
+    T_mult: 2                     # Period multiplication factor
+    eta_min: 1e-7                 # Minimum learning rate
+    warmup_ratio: 0.1             # Warmup ratio
+  
+  # Advanced training techniques
+  mixed_precision: true           # Enable mixed precision training
+  gradient_accumulation_steps: 2  # Gradient accumulation steps
+  early_stopping_patience: 20     # Early stopping patience (longer for forecasting)
+  
+  # Data parameters
+  train_split: 0.7                # Training data split ratio
+  val_split: 0.15                 # Validation data split ratio
+  test_split: 0.15                # Test data split ratio
+  
+  # Time series specific splits
+  time_series_split: true         # Use time-series aware splitting
+  validation_window: 720          # Validation window in hours (30 days)
+  test_window: 720                # Test window in hours (30 days)
+  
+  # Checkpointing and logging
+  checkpoint_dir: "./checkpoints"  # Directory for saving checkpoints
+  log_interval: 50                # Logging interval in steps
+  eval_interval: 500              # Evaluation interval in steps
+  save_interval: 2000             # Model saving interval in steps
+  
+  # Distributed training
+  distributed: false              # Enable distributed training
+  world_size: 1                   # Number of processes for distributed training
+  
+  # Forecasting-specific loss configuration
+  loss_function:
+    forecast_loss_weight: 2.0     # Weight for forecasting loss
+    uncertainty_loss_weight: 0.5  # Weight for uncertainty loss
+    physics_loss_weight: 0.1      # Weight for physics constraints
+    temporal_consistency_weight: 0.2  # Weight for temporal consistency
+    seasonal_loss_weight: 0.1     # Weight for seasonal pattern loss
+    trend_loss_weight: 0.1        # Weight for trend consistency
+    quantile_loss_alpha: 0.5      # Alpha parameter for quantile loss
+  
+  # Regularization
+  dropout_rate: 0.1               # Dropout rate
+  temporal_dropout: 0.05          # Temporal-specific dropout
+  label_smoothing: 0.0            # Label smoothing factor
+  data_augmentation: true         # Enable data augmentation
+  
+  # AWS SageMaker integration
+  use_sagemaker: false            # Use AWS SageMaker for training
+  instance_type: "ml.p3.2xlarge" # SageMaker instance type
+  instance_count: 1               # Number of SageMaker instances
+
+# Data Configuration
+data:
+  # Sequence parameters (optimized for forecasting)
+  sequence_length: 1024           # Length of input sequences (longer for forecasting)
+  forecast_horizon: 168           # Number of future steps to predict (1 week)
+  overlap_ratio: 0.8              # Overlap ratio between sequences (higher for forecasting)
+  
+  # Feature configuration for forecasting
+  feature_columns:
+    - "voltage"                   # Battery voltage (V)
+    - "current"                   # Battery current (A)
+    - "temperature"               # Battery temperature (°C)
+    - "state_of_charge"           # State of Charge (%)
+    - "state_of_health"           # State of Health (%)
+    - "internal_resistance"       # Internal resistance (Ω)
+    - "capacity"                  # Battery capacity (Ah)
+    - "cycle_count"               # Number of charge cycles
+    - "age_days"                  # Battery age in days
+    - "power"                     # Power (W) - derived feature
+    - "energy_cumulative"         # Cumulative energy (Wh)
+    - "coulomb_count"             # Coulomb counting
+    - "voltage_derivative"        # Voltage rate of change
+    - "current_derivative"        # Current rate of change
+    - "temperature_derivative"    # Temperature rate of change
+    - "resistance_estimate"       # Estimated resistance
+    - "arrhenius_factor"          # Temperature-based degradation factor
+    - "usage_intensity"           # Usage intensity metric
+    - "thermal_stress"            # Thermal stress indicator
+    - "mechanical_stress"         # Mechanical stress indicator
+    - "calendar_aging_factor"     # Calendar aging factor
+  
+  target_columns:
+    - "capacity_fade_rate"        # Capacity degradation rate
+    - "resistance_increase_rate"  # Resistance increase rate
+    - "thermal_degradation_rate"  # Thermal stress degradation rate
+    - "cycle_efficiency_decline"  # Cycle efficiency decline rate
+    - "calendar_aging_rate"       # Calendar aging rate
+    - "overall_health_decline"    # Overall health decline rate
+  
+  # Data identification columns
+  timestamp_column: "timestamp"   # Name of timestamp column
+  battery_id_column: "battery_id" # Name of battery ID column
+  
+  # Data validation
+  validate_data: true             # Enable data validation
+  remove_outliers: true           # Remove outliers from data
+  outlier_threshold: 3.0          # Z-score threshold for outlier detection
+  outlier_method: "zscore"        # Outlier detection method
+  
+  # Missing value handling
+  interpolation_method: "linear"  # Interpolation method for missing values
+  max_gap_size: 24                # Maximum gap size for interpolation (hours)
+  
+  # Time series specific parameters
+  time_frequency: "1H"            # Time frequency for resampling
+  seasonal_adjustment: true       # Apply seasonal adjustment
+  trend_removal: false            # Remove trend from data
+  
+  # Performance configuration
+  batch_size: 16                  # Data loading batch size
+  num_workers: 4                  # Number of worker processes
+  prefetch_factor: 2              # Number of batches to prefetch
+  pin_memory: true                # Pin memory for faster GPU transfer
+  
+  # AWS configuration
+  aws_region: "us-east-1"         # AWS region for S3 and IoT
+  s3_bucket: "batterymind-forecasting-data"  # S3 bucket for forecasting data
+  iot_topic: "battery/degradation" # IoT topic for degradation data
+  
+  # Caching configuration
+  enable_caching: true            # Enable data caching
+  cache_dir: "./forecasting_cache" # Directory for data cache
+  cache_size_limit: 2048          # Maximum cache size in MB
+
+# Time Series Processing Configuration
+time_series:
+  # Seasonality detection
+  enable_seasonality_detection: true  # Enable automatic seasonality detection
+  seasonality_test_method: "fft"      # Method for seasonality testing
+  min_seasonal_period: 12             # Minimum seasonal period
+  max_seasonal_period: 8760           # Maximum seasonal period (1 year)
+  
+  # Trend analysis
+  enable_trend_analysis: true         # Enable trend analysis
+  trend_detection_method: "mann_kendall"  # Trend detection method
+  trend_significance_level: 0.05      # Significance level for trend tests
+  
+  # Change point detection
+  enable_change_point_detection: true # Enable change point detection
+  change_point_method: "pelt"         # Change point detection algorithm
+  change_point_penalty: "BIC"         # Penalty for change point detection
+  min_segment_length: 168             # Minimum segment length (1 week)
+  
+  # Stationarity testing
+  stationarity_test: "adf"            # Augmented Dickey-Fuller test
+  stationarity_significance: 0.05     # Significance level for stationarity
+  differencing_max_order: 2           # Maximum differencing order
+  
+  # Decomposition parameters
+  decomposition_model: "additive"     # Decomposition model type
+  extrapolate_trend: true             # Extrapolate trend for forecasting
+
+# Evaluation Configuration
+evaluation:
+  # Primary forecasting metrics
+  primary_metrics:
+    - "mape"                      # Mean Absolute Percentage Error
+    - "smape"                     # Symmetric Mean Absolute Percentage Error
+    - "mase"                      # Mean Absolute Scaled Error
+    - "rmse"                      # Root Mean Square Error
+    - "mae"                       # Mean Absolute Error
+    - "msis"                      # Mean Scaled Interval Score
+  
+  # Horizon-specific metrics
+  horizon_metrics:
+    short_term: [1, 24]           # 1 hour to 1 day
+    medium_term: [25, 168]        # 1 day to 1 week
+    long_term: [169, 720]         # 1 week to 1 month
+  
+  # Uncertainty evaluation
+  uncertainty_metrics:
+    - "prediction_interval_coverage"  # Coverage of prediction intervals
+    - "interval_width"                # Average interval width
+    - "quantile_score"                # Quantile score for probabilistic forecasts
+  
+  # Physics compliance metrics
+  physics_metrics:
+    - "monotonicity_compliance"   # Compliance with monotonic degradation
+    - "rate_limit_compliance"     # Compliance with degradation rate limits
+    - "energy_conservation"       # Energy conservation compliance
+  
+  # Performance thresholds
+  performance_thresholds:
+    short_term_mape: 5.0          # 5% MAPE for short-term forecasts
+    medium_term_mape: 10.0        # 10% MAPE for medium-term forecasts
+    long_term_mape: 15.0          # 15% MAPE for long-term forecasts
+    uncertainty_coverage: 0.9     # 90% prediction interval coverage
+    inference_time_threshold: 200 # Maximum inference time (ms)
+
+# Inference Configuration
+inference:
+  # Model configuration
+  model_path: "./model_artifacts/best_forecasting_model.ckpt"
+  device: "auto"                  # Inference device
+  batch_size: 8                   # Batch size for inference (smaller for longer sequences)
+  max_sequence_length: 1024       # Maximum input sequence length
+  
+  # Forecasting parameters
+  default_horizon: 168            # Default forecast horizon (1 week)
+  max_horizon: 720                # Maximum forecast horizon (1 month)
+  uncertainty_estimation: true    # Enable uncertainty estimation
+  confidence_intervals: [0.8, 0.9, 0.95]  # Confidence interval levels
+  
+  # Performance optimization
+  enable_caching: true            # Enable result caching
+  cache_ttl: 7200                 # Cache time-to-live in seconds (2 hours)
+  enable_monitoring: true         # Enable performance monitoring
+  
+  # Advanced features
+  seasonal_adjustment: true       # Apply seasonal adjustment to forecasts
+  trend_extrapolation: true       # Extrapolate trends in forecasts
+  ensemble_forecasting: false     # Use ensemble of models
+
+# Integration Configuration
+integration:
+  # Battery health predictor integration
+  health_predictor_integration: true
+  health_predictor_weight: 0.3    # Weight for health predictor input
+  
+  # Optimization recommender integration
+  optimization_integration: true
+  optimization_feedback: true     # Use optimization feedback for forecasting
+  
+  # Real-time streaming
+  streaming:
+    enable_real_time: true        # Enable real-time forecasting
+    update_frequency: "1H"        # Forecast update frequency
+    streaming_buffer_size: 1000   # Buffer size for streaming data
+  
+  # API endpoints
+  api_endpoints:
+    forecast: "/api/v1/battery/degradation/forecast"
+    batch_forecast: "/api/v1/battery/degradation/batch_forecast"
+    uncertainty: "/api/v1/battery/degradation/uncertainty"
+    trends: "/api/v1/battery/degradation/trends"
+
+# Monitoring Configuration
+monitoring:
+  # Forecast accuracy monitoring
+  accuracy_monitoring:
+    enable: true
+    update_frequency: "1D"        # Daily accuracy updates
+    alert_threshold: 0.15         # Alert if MAPE exceeds 15%
+  
+  # Model drift detection
+  drift_detection:
+    enable: true
+    drift_threshold: 0.1          # Drift detection threshold
+    reference_window: 720         # Reference window for drift detection (30 days)
+  
+  # Performance monitoring
+  performance_monitoring:
+    latency_threshold: 200        # Latency threshold in ms
+    memory_threshold: 2048        # Memory threshold in MB
+    error_rate_threshold: 0.01    # Error rate threshold
+
+# Environment-specific overrides
+environments:
+  development:
+    training:
+      num_epochs: 20              # Reduced epochs for development
+      batch_size: 8               # Smaller batch size
+    data:
+      sequence_length: 512        # Shorter sequences for development
+      forecast_horizon: 24        # Shorter forecast horizon
+    
+  staging:
+    training:
+      num_epochs: 100             # Moderate epochs for staging
+    evaluation:
+      performance_thresholds:
+        short_term_mape: 8.0      # More lenient thresholds
+        medium_term_mape: 15.0
+    
+  production:
+    training:
+      distributed: true           # Enable distributed training
+      use_sagemaker: true         # Use SageMaker for training
+    monitoring:
+      accuracy_monitoring:
+        enable: true
+      drift_detection:
+        enable: true
+      performance_monitoring:
+        latency_threshold: 100    # Stricter latency requirements
+
+# Experimental Features
+experimental:
+  # Advanced forecasting techniques
+  attention_forecasting: false    # Attention-based forecasting
+  graph_neural_networks: false   # GNN for battery network modeling
+  
+  # Quantum-inspired optimization
+  quantum_forecasting: false     # Quantum-inspired forecasting algorithms
+  
+  # Multi-modal forecasting
+  weather_integration: false     # Integrate weather data
+  usage_pattern_learning: false  # Learn usage patterns
+  
+  # Advanced uncertainty quantification
+  conformal_prediction: false    # Conformal prediction intervals
+  bayesian_forecasting: false    # Bayesian neural networks
