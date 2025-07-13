@@ -34,7 +34,7 @@ import random
 # RL-specific imports
 import gym
 from gym import spaces
-from stable_baselines3 import PPO, SAC, TD3
+from stable_baselines3 import DDPG, PPO, SAC, TD3
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.noise import NormalActionNoise
