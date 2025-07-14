@@ -1,0 +1,341 @@
+{
+  "registry_metadata": {
+    "version": "1.0.0",
+    "created_at": "2025-01-10T00:00:00Z",
+    "last_updated": "2025-01-10T00:00:00Z",
+    "registry_format_version": "2.0",
+    "description": "BatteryMind AI/ML Model Registry for production model management",
+    "maintainer": "BatteryMind Development Team",
+    "contact": "batterymind@tatatechnologies.com"
+  },
+  "models": {
+    "transformer_battery_health": {
+      "model_id": "transformer_v1.0",
+      "model_name": "Transformer Battery Health Predictor",
+      "model_type": "transformer",
+      "domain": "battery_health_prediction",
+      "versions": {
+        "1.0.0": {
+          "version_id": "transformer_v1.0.0",
+          "created_at": "2025-01-10T00:00:00Z",
+          "created_by": "ai_training_pipeline",
+          "status": "production",
+          "model_path": "trained_models/transformer_v1.0/",
+          "model_files": {
+            "model": "model.pkl",
+            "weights": "model_weights.h5",
+            "tokenizer": "tokenizer.json",
+            "config": "config.json",
+            "metadata": "model_metadata.yaml"
+          },
+          "performance_metrics": {
+            "accuracy": 0.94,
+            "precision": 0.93,
+            "recall": 0.95,
+            "f1_score": 0.94,
+            "mae": 0.023,
+            "rmse": 0.031,
+            "r2_score": 0.91
+          },
+          "training_metadata": {
+            "training_dataset_version": "battery_telemetry_v1.0",
+            "training_duration_hours": 24.5,
+            "total_epochs": 100,
+            "best_epoch": 87,
+            "early_stopping": true,
+            "hyperparameters": {
+              "learning_rate": 0.0001,
+              "batch_size": 64,
+              "sequence_length": 100,
+              "hidden_size": 512,
+              "num_layers": 8,
+              "num_heads": 16,
+              "dropout": 0.1
+            }
+          },
+          "validation_results": {
+            "cross_validation_score": 0.92,
+            "test_set_performance": 0.94,
+            "validation_dataset": "battery_validation_v1.0",
+            "validation_date": "2025-01-10T00:00:00Z"
+          },
+          "deployment_info": {
+            "deployment_target": "aws_sagemaker",
+            "endpoint_name": "transformer-battery-health-prod",
+            "instance_type": "ml.m5.xlarge",
+            "auto_scaling": true,
+            "min_instances": 2,
+            "max_instances": 10
+          },
+          "tags": ["production", "battery_health", "transformer", "v1.0"],
+          "dependencies": {
+            "python": "3.9",
+            "tensorflow": "2.8.0",
+            "transformers": "4.15.0",
+            "numpy": "1.21.0",
+            "pandas": "1.3.0"
+          },
+          "compatibility": {
+            "input_format": "time_series_battery_data",
+            "output_format": "health_prediction_scores",
+            "api_version": "v1",
+            "backward_compatible": true
+          }
+        }
+      },
+      "latest_version": "1.0.0",
+      "production_version": "1.0.0",
+      "staging_version": null
+    },
+    "federated_global_model": {
+      "model_id": "federated_v1.0",
+      "model_name": "Federated Learning Global Model",
+      "model_type": "federated_learning",
+      "domain": "distributed_battery_analytics",
+      "versions": {
+        "1.0.0": {
+          "version_id": "federated_v1.0.0",
+          "created_at": "2025-01-10T00:00:00Z",
+          "created_by": "federated_training_server",
+          "status": "production",
+          "model_path": "trained_models/federated_v1.0/",
+          "model_files": {
+            "global_model": "global_model.pkl",
+            "aggregation_weights": "aggregation_weights.npy",
+            "client_configs": "client_configs.json",
+            "federation_history": "federation_history.json",
+            "privacy_params": "privacy_params.yaml"
+          },
+          "performance_metrics": {
+            "global_accuracy": 0.89,
+            "convergence_rounds": 50,
+            "client_participation_rate": 0.85,
+            "privacy_budget_consumed": 0.7,
+            "communication_efficiency": 0.92
+          },
+          "training_metadata": {
+            "federation_rounds": 50,
+            "participating_clients": 25,
+            "aggregation_algorithm": "FedAvg",
+            "privacy_mechanism": "differential_privacy",
+            "epsilon": 1.0,
+            "delta": 1e-5
+          },
+          "validation_results": {
+            "federated_validation_score": 0.88,
+            "local_validation_scores": {
+              "mean": 0.87,
+              "std": 0.03,
+              "min": 0.82,
+              "max": 0.91
+            }
+          },
+          "deployment_info": {
+            "deployment_target": "federated_infrastructure",
+            "server_endpoint": "federated-server-prod",
+            "client_sdk_version": "1.0.0"
+          },
+          "tags": ["production", "federated_learning", "privacy_preserving", "v1.0"],
+          "dependencies": {
+            "python": "3.9",
+            "tensorflow": "2.8.0",
+            "tensorflow_federated": "0.19.0",
+            "numpy": "1.21.0"
+          }
+        }
+      },
+      "latest_version": "1.0.0",
+      "production_version": "1.0.0",
+      "staging_version": null
+    },
+    "rl_charging_agent": {
+      "model_id": "rl_agent_v1.0",
+      "model_name": "Reinforcement Learning Charging Agent",
+      "model_type": "reinforcement_learning",
+      "domain": "battery_charging_optimization",
+      "versions": {
+        "1.0.0": {
+          "version_id": "rl_agent_v1.0.0",
+          "created_at": "2025-01-10T00:00:00Z",
+          "created_by": "rl_training_pipeline",
+          "status": "production",
+          "model_path": "trained_models/rl_agent_v1.0/",
+          "model_files": {
+            "policy_network": "policy_network.pt",
+            "value_network": "value_network.pt",
+            "replay_buffer": "replay_buffer.pkl",
+            "training_stats": "training_stats.json",
+            "environment_config": "environment_config.yaml"
+          },
+          "performance_metrics": {
+            "average_reward": 847.3,
+            "success_rate": 0.96,
+            "battery_life_extension": 0.42,
+            "energy_efficiency_improvement": 0.18,
+            "safety_violations": 0
+          },
+          "training_metadata": {
+            "algorithm": "SAC",
+            "total_timesteps": 2000000,
+            "training_episodes": 5000,
+            "environment": "BatteryChargingEnv-v1",
+            "reward_function": "composite_battery_reward",
+            "exploration_strategy": "entropy_regularization"
+          },
+          "validation_results": {
+            "simulation_performance": 0.94,
+            "real_world_validation": 0.91,
+            "safety_compliance": 1.0,
+            "robustness_score": 0.88
+          },
+          "deployment_info": {
+            "deployment_target": "edge_devices",
+            "model_format": "onnx",
+            "inference_latency_ms": 15,
+            "memory_footprint_mb": 45
+          },
+          "tags": ["production", "reinforcement_learning", "charging_optimization", "v1.0"],
+          "dependencies": {
+            "python": "3.9",
+            "torch": "1.11.0",
+            "stable_baselines3": "1.5.0",
+            "gymnasium": "0.26.0"
+          }
+        }
+      },
+      "latest_version": "1.0.0",
+      "production_version": "1.0.0",
+      "staging_version": null
+    },
+    "ensemble_predictor": {
+      "model_id": "ensemble_v1.0",
+      "model_name": "Ensemble Battery Predictor",
+      "model_type": "ensemble",
+      "domain": "comprehensive_battery_analytics",
+      "versions": {
+        "1.0.0": {
+          "version_id": "ensemble_v1.0.0",
+          "created_at": "2025-01-10T00:00:00Z",
+          "created_by": "ensemble_training_pipeline",
+          "status": "production",
+          "model_path": "trained_models/ensemble_v1.0/",
+          "model_files": {
+            "ensemble_model": "ensemble_model.pkl",
+            "base_models": "base_models.tar.gz",
+            "voting_weights": "voting_weights.npy",
+            "stacking_meta_model": "stacking_meta_model.pkl",
+            "ensemble_config": "ensemble_config.json"
+          },
+          "performance_metrics": {
+            "ensemble_accuracy": 0.96,
+            "individual_model_performance": {
+              "transformer": 0.94,
+              "random_forest": 0.89,
+              "gradient_boosting": 0.91,
+              "neural_network": 0.93
+            },
+            "diversity_score": 0.73,
+            "prediction_confidence": 0.92
+          },
+          "training_metadata": {
+            "ensemble_method": "stacking",
+            "base_models": ["transformer", "random_forest", "gradient_boosting", "neural_network"],
+            "meta_learner": "linear_regression",
+            "cross_validation_folds": 5,
+            "ensemble_strategy": "weighted_voting"
+          },
+          "validation_results": {
+            "cross_validation_score": 0.95,
+            "out_of_sample_performance": 0.94,
+            "stability_score": 0.91,
+            "calibration_score": 0.88
+          },
+          "deployment_info": {
+            "deployment_target": "aws_sagemaker",
+            "endpoint_name": "ensemble-battery-predictor-prod",
+            "instance_type": "ml.m5.2xlarge",
+            "auto_scaling": true
+          },
+          "tags": ["production", "ensemble", "comprehensive_prediction", "v1.0"],
+          "dependencies": {
+            "python": "3.9",
+            "scikit-learn": "1.0.2",
+            "tensorflow": "2.8.0",
+            "xgboost": "1.5.0",
+            "numpy": "1.21.0"
+          }
+        }
+      },
+      "latest_version": "1.0.0",
+      "production_version": "1.0.0",
+      "staging_version": null
+    }
+  },
+  "model_lineage": {
+    "transformer_battery_health": {
+      "parent_models": [],
+      "derived_models": ["ensemble_predictor"],
+      "training_data_lineage": ["battery_telemetry_v1.0", "degradation_curves_v1.0"],
+      "feature_dependencies": ["voltage_features", "current_features", "temperature_features"]
+    },
+    "federated_global_model": {
+      "parent_models": [],
+      "derived_models": [],
+      "training_data_lineage": ["distributed_battery_data_v1.0"],
+      "feature_dependencies": ["federated_features", "privacy_preserved_features"]
+    },
+    "rl_charging_agent": {
+      "parent_models": [],
+      "derived_models": [],
+      "training_data_lineage": ["charging_simulation_data_v1.0"],
+      "feature_dependencies": ["battery_state_features", "charging_action_features"]
+    },
+    "ensemble_predictor": {
+      "parent_models": ["transformer_battery_health"],
+      "derived_models": [],
+      "training_data_lineage": ["combined_training_data_v1.0"],
+      "feature_dependencies": ["all_battery_features"]
+    }
+  },
+  "governance": {
+    "approval_workflow": {
+      "development_to_staging": ["code_review", "unit_tests", "integration_tests"],
+      "staging_to_production": ["performance_validation", "safety_review", "stakeholder_approval"],
+      "production_updates": ["a_b_testing", "gradual_rollout", "monitoring_validation"]
+    },
+    "compliance": {
+      "data_privacy": "GDPR_compliant",
+      "model_explainability": "required",
+      "audit_trail": "complete",
+      "safety_certification": "ISO_26262_compliant"
+    },
+    "access_control": {
+      "read_access": ["data_scientists", "ml_engineers", "product_managers"],
+      "write_access": ["ml_engineers", "senior_data_scientists"],
+      "deployment_access": ["devops_engineers", "ml_engineers"],
+      "admin_access": ["ml_platform_team"]
+    }
+  },
+  "monitoring": {
+    "performance_tracking": {
+      "metrics_collection_frequency": "real_time",
+      "alert_thresholds": {
+        "accuracy_degradation": 0.05,
+        "latency_increase": 0.2,
+        "error_rate_increase": 0.1
+      },
+      "dashboard_url": "https://monitoring.batterymind.ai/models"
+    },
+    "data_drift_detection": {
+      "enabled": true,
+      "detection_method": "statistical_tests",
+      "monitoring_frequency": "hourly",
+      "alert_threshold": 0.1
+    },
+    "model_health_checks": {
+      "automated_testing": true,
+      "health_check_frequency": "daily",
+      "test_suite": "comprehensive_model_tests"
+    }
+  }
+}

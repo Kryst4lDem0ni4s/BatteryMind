@@ -1,0 +1,197 @@
+# BatteryMind RL Agent Environment Configuration
+# Version: 1.0.0
+# Author: BatteryMind Development Team
+
+environment:
+  name: "BatteryChargingOptimization"
+  version: "1.0.0"
+  type: "continuous_control"
+  
+  # Environment specifications
+  state_space:
+    dimension: 16
+    description: "Battery state including SoC, SoH, temperature, voltage, current, etc."
+    features:
+      - name: "state_of_charge"
+        range: [0.0, 1.0]
+        unit: "percentage"
+        description: "Battery state of charge"
+      - name: "state_of_health"
+        range: [0.5, 1.0]
+        unit: "percentage"
+        description: "Battery state of health"
+      - name: "temperature"
+        range: [-20.0, 60.0]
+        unit: "celsius"
+        description: "Battery temperature"
+      - name: "voltage"
+        range: [2.5, 4.2]
+        unit: "volts"
+        description: "Terminal voltage"
+      - name: "current"
+        range: [-100.0, 100.0]
+        unit: "amperes"
+        description: "Battery current (positive=charging)"
+      - name: "internal_resistance"
+        range: [0.01, 0.5]
+        unit: "ohms"
+        description: "Internal resistance"
+      - name: "capacity"
+        range: [50.0, 150.0]
+        unit: "ampere_hours"
+        description: "Current capacity"
+      - name: "cycle_count"
+        range: [0, 10000]
+        unit: "cycles"
+        description: "Number of charge cycles"
+      - name: "ambient_temperature"
+        range: [-10.0, 50.0]
+        unit: "celsius"
+        description: "Ambient temperature"
+      - name: "time_of_day"
+        range: [0.0, 24.0]
+        unit: "hours"
+        description: "Time of day"
+      - name: "power_demand"
+        range: [0.0, 200.0]
+        unit: "watts"
+        description: "Power demand"
+      - name: "grid_price"
+        range: [0.05, 0.50]
+        unit: "dollars_per_kwh"
+        description: "Electricity price"
+      - name: "renewable_availability"
+        range: [0.0, 1.0]
+        unit: "percentage"
+        description: "Renewable energy availability"
+      - name: "safety_margin"
+        range: [0.0, 1.0]
+        unit: "percentage"
+        description: "Safety margin indicator"
+      - name: "efficiency_score"
+        range: [0.0, 1.0]
+        unit: "percentage"
+        description: "Current efficiency score"
+      - name: "degradation_rate"
+        range: [0.0, 0.01]
+        unit: "per_cycle"
+        description: "Current degradation rate"
+
+  action_space:
+    dimension: 3
+    description: "Charging control actions"
+    actions:
+      - name: "charging_current"
+        range: [0.0, 50.0]
+        unit: "amperes"
+        description: "Charging current setpoint"
+      - name: "thermal_control"
+        range: [-1.0, 1.0]
+        unit: "normalized"
+        description: "Thermal management control (-1=cooling, +1=heating)"
+      - name: "power_limit"
+        range: [0.0, 1.0]
+        unit: "percentage"
+        description: "Power limit factor"
+
+  reward_structure:
+    type: "multi_objective"
+    components:
+      battery_health:
+        weight: 0.4
+        description: "Reward for maintaining battery health"
+        metrics: ["soh_preservation", "degradation_minimization"]
+      energy_efficiency:
+        weight: 0.3
+        description: "Reward for energy efficiency"
+        metrics: ["charging_efficiency", "round_trip_efficiency"]
+      safety_compliance:
+        weight: 0.2
+        description: "Reward for safety compliance"
+        metrics: ["temperature_safety", "voltage_safety", "current_safety"]
+      cost_optimization:
+        weight: 0.1
+        description: "Reward for cost optimization"
+        metrics: ["energy_cost", "time_of_use_optimization"]
+
+  physics_model:
+    type: "equivalent_circuit"
+    parameters:
+      nominal_capacity: 100.0  # Ah
+      nominal_voltage: 3.7     # V
+      internal_resistance: 0.1 # Ohms
+      thermal_mass: 1000.0     # J/K
+      thermal_resistance: 0.1  # K/W
+    degradation_model:
+      calendar_aging: true
+      cycle_aging: true
+      temperature_acceleration: true
+      sei_growth: true
+
+  safety_constraints:
+    temperature:
+      min: -20.0  # Celsius
+      max: 60.0   # Celsius
+      critical_max: 70.0  # Emergency shutdown
+    voltage:
+      min: 2.5    # Volts
+      max: 4.2    # Volts
+      critical_min: 2.0   # Emergency shutdown
+      critical_max: 4.5   # Emergency shutdown
+    current:
+      min: -100.0 # Amperes (discharge)
+      max: 50.0   # Amperes (charge)
+      critical_max: 80.0  # Emergency limit
+    state_of_charge:
+      min: 0.05   # 5%
+      max: 0.95   # 95%
+      critical_min: 0.02  # 2%
+
+  training_parameters:
+    algorithm: "SAC"  # Soft Actor-Critic
+    learning_rate: 3e-4
+    batch_size: 256
+    replay_buffer_size: 1000000
+    target_update_frequency: 1
+    tau: 0.005
+    gamma: 0.99
+    episodes: 10000
+    max_steps_per_episode: 1000
+    evaluation_frequency: 100
+    save_frequency: 1000
+
+  evaluation_metrics:
+    - "cumulative_reward"
+    - "battery_health_preservation"
+    - "energy_efficiency"
+    - "safety_violations"
+    - "convergence_rate"
+    - "policy_stability"
+    - "exploration_efficiency"
+
+metadata:
+  created_date: "2025-01-10"
+  model_version: "1.0.0"
+  framework: "PyTorch"
+  python_version: "3.9+"
+  dependencies:
+    - "torch>=1.12.0"
+    - "numpy>=1.21.0"
+    - "gymnasium>=0.26.0"
+    - "stable-baselines3>=1.6.0"
+  
+  performance_benchmarks:
+    training_time: "~24 hours on GPU"
+    inference_time: "<1ms per action"
+    memory_usage: "~2GB during training"
+    convergence_episodes: "~5000"
+    final_reward: ">0.85"
+    safety_violation_rate: "<0.01"
+
+  deployment_info:
+    target_platforms: ["cloud", "edge"]
+    optimization_formats: ["ONNX", "TensorRT", "TensorFlow Lite"]
+    hardware_requirements:
+      minimum_ram: "1GB"
+      recommended_gpu: "NVIDIA T4 or better"
+      cpu_cores: "4+"

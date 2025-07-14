@@ -1,0 +1,359 @@
+{
+  "rollback_metadata": {
+    "version": "1.0.0",
+    "created_at": "2025-01-10T00:00:00Z",
+    "last_updated": "2025-01-10T00:00:00Z",
+    "description": "Rollback configurations and procedures for BatteryMind AI/ML models",
+    "config_format_version": "2.0"
+  },
+  "rollback_policies": {
+    "automatic_rollback": {
+      "enabled": true,
+      "trigger_conditions": {
+        "accuracy_degradation_threshold": 0.05,
+        "latency_increase_threshold": 0.3,
+        "error_rate_threshold": 0.05,
+        "safety_violation_threshold": 1,
+        "resource_utilization_threshold": 0.9
+      },
+      "monitoring_window_minutes": 30,
+      "consecutive_violations_required": 3,
+      "rollback_delay_minutes": 5
+    },
+    "manual_rollback": {
+      "approval_required": true,
+      "approvers": ["senior_ml_engineer", "platform_lead"],
+      "approval_timeout_hours": 2,
+      "emergency_override": true,
+      "emergency_contacts": ["oncall_engineer", "ml_platform_team"]
+    },
+    "rollback_strategies": {
+      "immediate": {
+        "description": "Instant rollback for critical issues",
+        "estimated_duration_minutes": 5,
+        "traffic_rerouting": "instant",
+        "data_consistency": "eventual"
+      },
+      "gradual": {
+        "description": "Gradual traffic shift for non-critical issues",
+        "estimated_duration_minutes": 30,
+        "traffic_shift_schedule": [
+          {"percentage": 75, "after_minutes": 5},
+          {"percentage": 50, "after_minutes": 10},
+          {"percentage": 25, "after_minutes": 20},
+          {"percentage": 0, "after_minutes": 30}
+        ]
+      },
+      "canary_rollback": {
+        "description": "Rollback canary deployment first",
+        "estimated_duration_minutes": 15,
+        "canary_traffic_percentage": 0,
+        "full_rollback_if_needed": true
+      }
+    }
+  },
+  "model_rollback_configs": {
+    "transformer_battery_health": {
+      "current_version": "1.0.0",
+      "rollback_targets": [
+        {
+          "version": "baseline_model",
+          "description": "Rule-based battery health estimation",
+          "rollback_type": "emergency_fallback",
+          "estimated_rollback_time_minutes": 3,
+          "data_compatibility": "full",
+          "performance_impact": {
+            "accuracy_reduction": 0.15,
+            "latency_improvement": 0.6,
+            "resource_reduction": 0.8
+          }
+        }
+      ],
+      "rollback_procedures": {
+        "pre_rollback_checks": [
+          "verify_target_version_availability",
+          "check_data_compatibility",
+          "validate_infrastructure_readiness",
+          "confirm_monitoring_setup"
+        ],
+        "rollback_steps": [
+          {
+            "step": 1,
+            "action": "stop_traffic_to_current_version",
+            "estimated_duration_seconds": 30,
+            "rollback_on_failure": false
+          },
+          {
+            "step": 2,
+            "action": "activate_target_version",
+            "estimated_duration_seconds": 60,
+            "rollback_on_failure": true
+          },
+          {
+            "step": 3,
+            "action": "redirect_traffic_to_target",
+            "estimated_duration_seconds": 30,
+            "rollback_on_failure": true
+          },
+          {
+            "step": 4,
+            "action": "validate_rollback_success",
+            "estimated_duration_seconds": 60,
+            "rollback_on_failure": false
+          }
+        ],
+        "post_rollback_validation": [
+          "health_check_endpoints",
+          "validate_prediction_accuracy",
+          "check_error_rates",
+          "monitor_system_metrics"
+        ]
+      },
+      "rollback_triggers": {
+        "accuracy_below": 0.89,
+        "latency_p95_above_ms": 200,
+        "error_rate_above": 0.05,
+        "memory_usage_above_gb": 8,
+        "safety_violations": 1
+      },
+      "notification_channels": [
+        "slack_ml_alerts",
+        "email_oncall",
+        "pagerduty_ml_team"
+      ]
+    },
+    "federated_global_model": {
+      "current_version": "1.0.0",
+      "rollback_targets": [
+        {
+          "version": "centralized_baseline",
+          "description": "Centralized learning baseline model",
+          "rollback_type": "architecture_fallback",
+          "estimated_rollback_time_minutes": 10,
+          "data_compatibility": "requires_aggregation",
+          "performance_impact": {
+            "privacy_loss": "complete",
+            "accuracy_change": -0.02,
+            "communication_reduction": 0.9
+          }
+        }
+      ],
+      "rollback_procedures": {
+        "pre_rollback_checks": [
+          "verify_client_compatibility",
+          "check_privacy_implications",
+          "validate_data_aggregation_capability",
+          "confirm_centralized_infrastructure"
+        ],
+        "rollback_steps": [
+          {
+            "step": 1,
+            "action": "pause_federation_rounds",
+            "estimated_duration_seconds": 10,
+            "rollback_on_failure": false
+          },
+          {
+            "step": 2,
+            "action": "aggregate_client_data",
+            "estimated_duration_seconds": 300,
+            "rollback_on_failure": true
+          },
+          {
+            "step": 3,
+            "action": "deploy_centralized_model",
+            "estimated_duration_seconds": 180,
+            "rollback_on_failure": true
+          },
+          {
+            "step": 4,
+            "action": "redirect_inference_requests",
+            "estimated_duration_seconds": 30,
+            "rollback_on_failure": true
+          }
+        ]
+      },
+      "rollback_triggers": {
+        "client_participation_below": 0.5,
+        "federation_failure_rate_above": 0.2,
+        "privacy_budget_exhausted": true,
+        "aggregation_latency_above_minutes": 60
+      }
+    },
+    "rl_charging_agent": {
+      "current_version": "1.0.0",
+      "rollback_targets": [
+        {
+          "version": "rule_based_controller",
+          "description": "Traditional rule-based charging controller",
+          "rollback_type": "safety_fallback",
+          "estimated_rollback_time_minutes": 2,
+          "data_compatibility": "full",
+          "performance_impact": {
+            "optimization_loss": 0.4,
+            "safety_improvement": 0.1,
+            "latency_improvement": 0.8
+          }
+        }
+      ],
+      "rollback_procedures": {
+        "pre_rollback_checks": [
+          "verify_rule_based_controller_availability",
+          "check_safety_parameters",
+          "validate_edge_device_compatibility",
+          "confirm_fallback_logic"
+        ],
+        "rollback_steps": [
+          {
+            "step": 1,
+            "action": "activate_safety_mode",
+            "estimated_duration_seconds": 5,
+            "rollback_on_failure": false
+          },
+          {
+            "step": 2,
+            "action": "switch_to_rule_based_controller",
+            "estimated_duration_seconds": 10,
+            "rollback_on_failure": false
+          },
+          {
+            "step": 3,
+            "action": "validate_safety_compliance",
+            "estimated_duration_seconds": 30,
+            "rollback_on_failure": false
+          }
+        ]
+      },
+      "rollback_triggers": {
+        "safety_violation_detected": true,
+        "inference_latency_above_ms": 50,
+        "memory_usage_above_mb": 60,
+        "battery_damage_risk": true,
+        "thermal_runaway_risk": true
+      },
+      "edge_specific_config": {
+        "offline_rollback_capability": true,
+        "local_fallback_model": "rule_based_controller",
+        "connectivity_loss_timeout_seconds": 30,
+        "autonomous_safety_mode": true
+      }
+    },
+    "ensemble_predictor": {
+      "current_version": "1.0.0",
+      "rollback_targets": [
+        {
+          "version": "transformer_battery_health",
+          "description": "Single transformer model fallback",
+          "rollback_type": "complexity_reduction",
+          "estimated_rollback_time_minutes": 5,
+          "data_compatibility": "full",
+          "performance_impact": {
+            "accuracy_reduction": 0.02,
+            "latency_improvement": 0.4,
+            "resource_reduction": 0.6
+          }
+        }
+      ],
+      "rollback_procedures": {
+        "pre_rollback_checks": [
+          "verify_base_model_availability",
+          "check_prediction_compatibility",
+          "validate_performance_baseline",
+          "confirm_resource_requirements"
+        ],
+        "rollback_steps": [
+          {
+            "step": 1,
+            "action": "disable_ensemble_aggregation",
+            "estimated_duration_seconds": 10,
+            "rollback_on_failure": false
+          },
+          {
+            "step": 2,
+            "action": "route_to_primary_model",
+            "estimated_duration_seconds": 20,
+            "rollback_on_failure": true
+          },
+          {
+            "step": 3,
+            "action": "validate_single_model_performance",
+            "estimated_duration_seconds": 60,
+            "rollback_on_failure": false
+          }
+        ]
+      },
+      "rollback_triggers": {
+        "ensemble_latency_above_ms": 250,
+        "model_disagreement_above": 0.3,
+        "resource_utilization_above": 0.9,
+        "base_model_failure_rate_above": 0.1
+      }
+    }
+  },
+  "rollback_history": [],
+  "rollback_testing": {
+    "test_schedule": "monthly",
+    "last_test_date": null,
+    "next_test_date": "2025-02-10T00:00:00Z",
+    "test_scenarios": [
+      {
+        "scenario": "accuracy_degradation_simulation",
+        "description": "Simulate accuracy drop to trigger automatic rollback",
+        "test_frequency": "monthly",
+        "success_criteria": "rollback_completed_within_10_minutes"
+      },
+      {
+        "scenario": "latency_spike_simulation",
+        "description": "Simulate latency increase to test rollback triggers",
+        "test_frequency": "monthly",
+        "success_criteria": "rollback_triggered_and_completed"
+      },
+      {
+        "scenario": "safety_violation_simulation",
+        "description": "Test emergency rollback for safety violations",
+        "test_frequency": "weekly",
+        "success_criteria": "immediate_rollback_to_safe_state"
+      }
+    ]
+  },
+  "emergency_procedures": {
+    "critical_safety_violation": {
+      "immediate_actions": [
+        "activate_emergency_stop",
+        "switch_to_safe_mode",
+        "notify_safety_team",
+        "initiate_immediate_rollback"
+      ],
+      "escalation_chain": [
+        "safety_engineer",
+        "ml_platform_lead",
+        "cto"
+      ],
+      "communication_channels": [
+        "emergency_slack_channel",
+        "safety_team_pager",
+        "executive_notification"
+      ]
+    },
+    "system_wide_failure": {
+      "immediate_actions": [
+        "activate_disaster_recovery",
+        "switch_to_backup_systems",
+        "notify_incident_response_team",
+        "initiate_coordinated_rollback"
+      ],
+      "recovery_procedures": [
+        "assess_failure_scope",
+        "prioritize_critical_services",
+        "execute_rollback_plan",
+        "validate_system_recovery"
+      ]
+    }
+  },
+  "compliance_and_audit": {
+    "rollback_documentation_required": true,
+    "audit_trail_retention_days": 365,
+    "compliance_frameworks": ["ISO_27001", "SOC_2", "GDPR"],
+    "regulatory_notification_required": false,
+    "post_rollback_analysis_required": true
+  }
+}
