@@ -1,0 +1,43 @@
+# BatteryMind Ensemble Model Container
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash batterymind
+USER batterymind
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV MODEL_TYPE=ensemble
+ENV MODEL_VERSION=v1.0
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY --chown=batterymind:batterymind . .
+
+# Create necessary directories
+RUN mkdir -p /app/models /app/logs /app/data /app/ensemble
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Command to run the application
+CMD ["python", "-m", "inference.predictors.ensemble_predictor", "--ensemble-config", "/app/config/ensemble_config.yaml"]

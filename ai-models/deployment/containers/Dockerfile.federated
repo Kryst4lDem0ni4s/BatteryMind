@@ -1,0 +1,46 @@
+# BatteryMind Federated Learning Container
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash batterymind
+USER batterymind
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV MODEL_TYPE=federated
+ENV MODEL_VERSION=v1.0
+ENV REDIS_URL=redis://localhost:6379
+
+# Copy requirements
+COPY requirements.txt .
+COPY requirements-federated.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-federated.txt
+
+# Copy application code
+COPY --chown=batterymind:batterymind . .
+
+# Create necessary directories
+RUN mkdir -p /app/models /app/logs /app/data /app/federation
+
+# Expose ports
+EXPOSE 8080 8081
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Command to run the application
+CMD ["python", "-m", "federated_learning.server.federated_server", "--config", "/app/config/federated_config.yaml"]
