@@ -781,3 +781,4 @@ if __name__ == "__main__":
     # Get summary
     summary = detector.get_drift_summary()
     print("Drift Summary:", json.dumps(summary, indent=2))
+
